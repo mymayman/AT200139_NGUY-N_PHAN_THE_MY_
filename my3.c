@@ -1,18 +1,24 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include<stdio.h>
 
-int main() {
-    unsigned long long p, q, m, n, c;
 
-    scanf("%llu", &p);
-    scanf("%llu", &q);
-    scanf("%llu", &m);
-
-    n = p * q;
-
-    c = (m * m) % n;
-
-    printf("%llu\n", c);
-
-    return 0;
+long long powmod(long long a,long long b,long long n){
+    long long resuilt = 1;
+    a = a % n;
+    while(b > 0){
+        if( b % 2 == 1){
+            resuilt = (resuilt*a) % n;
+        }
+        b = b/2;
+        a =(a*a) % n;
+    }
+    return resuilt;
 }
+
+ int main(){
+    long long p,q,m;
+    scanf("%lld,%lld,%lld",&p,&q,&m);
+    long long n =p*q;
+    long long c = powmod(m,2,n);
+    printf("%lld\n",c);
+    return 0;
+ }
