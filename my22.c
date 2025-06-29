@@ -1,26 +1,48 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <stdio.h>
-#include <string.h>
+#define MAX 256 
+void buildShiftTable(const char *pattern, int m, int shift[MAX]) {
+    for (int i = 0; i < MAX; i++) {
+        shift[i] = m;
+    }
+    for (int i = 0; i < m - 1; i++) {
+        shift[(unsigned char)pattern[i]] = m - i - 1;
+    }
+}
 
 int main() {
-    char Aaa[1001];
-    char Bbb[101];
+    char text[1001], pattern[101];
+    fgets(text, sizeof(text), stdin);
+    fgets(pattern, sizeof(pattern), stdin);
+    text[strcspn(text, "\n")] = '\0';
+    pattern[strcspn(pattern, "\n")] = '\0';
 
-    fgets(Aaa, sizeof(Aaa), stdin);
-    fgets(Bbb, sizeof(Bbb), stdin);
+    int n = strlen(text);
+    int m = strlen(pattern);
+    int shift[MAX];
+    int found = 0;
 
-    Aaa[strcspn(Aaa, "\n")] = '\0';
-    Bbb[strcspn(Bbb, "\n")] = '\0';
+    buildShiftTable(pattern, m, shift);
 
-    int len_A = strlen(Aaa);
-    int len_B = strlen(Bbb);
-
-    for (int i = 0; i <= len_A - len_B; i++) {
-        if (strncmp(&Aaa[i], Bbb, len_B) == 0) {
-            printf("%d ", i);
+    int i = 0;
+    while (i <= n - m) {
+        int j = m - 1;
+        while (j >= 0 && pattern[j] == text[i + j]) {
+            j--;
         }
+
+        if (j < 0) {
+            printf("%d ", i + 1); 
+            found = 1;
+            i += 1;  
+        } else {
+            i += shift[(unsigned char)text[i + m - 1]];
+        }
+    }
+
+    if (!found) {
+        printf("-1");
     }
 
     return 0;
