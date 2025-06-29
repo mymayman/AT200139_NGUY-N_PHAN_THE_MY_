@@ -1,5 +1,19 @@
 #include <stdio.h>
 #include <string.h>
+int boiomore(const char *haystack, const char *needle) {
+    int n = strlen(haystack);
+    int m = strlen(needle);
+
+    for (int i = 0; i <= n - m; i++) {
+        int j = 0;
+        while (j < m && haystack[i + j] == needle[j]) {
+            j++;
+        }
+        if (j == m) return 1;
+    }
+    return 0;
+}
+
 
 int main() {
     char A[1001], B[1001];
@@ -15,7 +29,7 @@ int main() {
     while (strlen(repeated) < strlen(B) + strlen(A)) {
         strcat(repeated, A);
         n++;
-        if (strstr(repeated, B)) {
+        if (boiomore(repeated, B)) {
             printf("%d\n", n);
             return 0;
         }
