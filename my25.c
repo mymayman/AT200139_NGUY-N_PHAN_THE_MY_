@@ -1,37 +1,41 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
-#define MAX 100
+#define MAX 105
 
-void normalize(char *s, char *pattern) {
-    int map[256];
-    int count = 0;
-    for (int i = 0; i < 256; i++) map[i] = -1;
+bool isIsomorphic(char* s, char* t) {
+    int map1[256], map2[256];
+    for (int i = 0; i < 256; i++) map1[i] = map2[i] = -1;
 
-    for (int i = 0; s[i]; i++) {
-        if (map[(unsigned char)s[i]] == -1)
-            map[(unsigned char)s[i]] = count++;
-        pattern[i] = map[(unsigned char)s[i]] + '0';
+    int len = strlen(s);
+    for (int i = 0; i < len; i++) {
+        char c1 = s[i];
+        char c2 = t[i];
+
+        if (map1[c1] == -1 && map2[c2] == -1) {
+            map1[c1] = c2;
+            map2[c2] = c1;
+        } else if (map1[c1] != c2 || map2[c2] != c1) {
+            return false;
+        }
     }
-    pattern[strlen(s)] = '\0';
+    return true;
 }
 
 int main() {
-    int n;
+    int N;
+    scanf("%d", &N);
     char behaviors[MAX][MAX];
-    char target[MAX], pattern1[MAX], pattern2[MAX];
-
-    scanf("%d", &n);
-    for (int i = 0; i < n; i++)
+    char pattern[MAX];
+    for (int i = 0; i < N; i++) {
         scanf("%s", behaviors[i]);
-    scanf("%s", target);
-
-    normalize(target, pattern1);
-
-    for (int i = 0; i < n; i++) {
-        normalize(behaviors[i], pattern2);
-        if (strcmp(pattern1, pattern2) == 0)
-            printf("%s ", behaviors[i]);
+    }
+    scanf("%s", pattern);
+    for (int i = 0; i < N; i++) {
+        if (strlen(behaviors[i]) == strlen(pattern) && isIsomorphic(behaviors[i], pattern)) {
+            printf("%s\n", behaviors[i]);
+        }
     }
 
     return 0;
