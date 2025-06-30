@@ -17,7 +17,7 @@ int main() {
 
     for (int i = 0; i <= lenX - lenY; i++) {
         if (strncmp(&X[i], Y, lenY) == 0) {
-            vitriccuoi = i; 
+            vitriccuoi = i + 1; 
         }
     }
 
