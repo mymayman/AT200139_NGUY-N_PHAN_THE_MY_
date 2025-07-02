@@ -1,70 +1,80 @@
-#include <stdio.h>
+#include<stdio.h>
 
-// Hàm tính (a * b) % p
-long long mulmod(long long a, long long b, long long p) {
-    return (a * b) % p;
+long long extended_gcd(long long a, long long b, long long *x, long long *y) {
+ long long x2 = 1,x1 = 0;
+ long long y2 = 0,y1 = 1;
+ long long q,r,x_temp,y_temp;
+  while( b > 0){
+   q = a/b;
+   r = a - q*b;
+   x_temp = x2 - x1*q;
+   y_temp = y2 - y1*q;
+   a = b;
+   b = r;
+   x2 = x1;
+   x1 = x_temp;
+   y2 = y1;
+   y1 = y_temp;
+ }
+ *x = x2;
+ *y = y2;
+ return a;
 }
 
-// Hàm tính (a + b) % p
-long long addmod(long long a, long long b, long long p) {
-    return (a + b) % p;
+long long mod_inverse(long long a, long long m) {
+    long long x, y;
+    long long g = extended_gcd(a, m, &x, &y);
+    if (g != 1) return -1;
+    else return (x % m + m) % m;
 }
-
-// Hàm tính (a - b) % p
-long long submod(long long a, long long b, long long p) {
-    return (a - b + p) % p;
-}
-
-// Hàm tính nghịch đảo modular của a mod p
-long long modinv(long long a, long long p) {
-    long long t = 0, newt = 1;
-    long long r = p, newr = a;
-    while (newr != 0) {
-        long long quotient = r / newr;
-        long long temp = newt;
-        newt = t - quotient * newt;
-        t = temp;
-        temp = newr;
-        newr = r - quotient * newr;
-        r = temp;
+// Phép cộng hai điểm elliptic
+void elliptic_add(long long x1, long long y1, long long x2, long long y2,
+                  long long a, long long p,
+                  long long* x3, long long* y3) {
+    if (x1 == x2 && (y1 + y2) % p == 0) {
+        *x3 = 0;
+        *y3 = 0;
+        return;
     }
-    if (r > 1) return -1; // Không tồn tại nghịch đảo
-    if (t < 0) t += p;
-    return t;
+
+    long long lambda;
+    if (x1 == x2 && y1 == y2) {
+        long long num = (3 * x1 % p * x1 % p + a) % p;
+        long long den = (2 * y1) % p;
+        long long inv = mod_inverse(den, p);
+        if (inv == -1) {
+            *x3 = *y3 = -1;
+            return;
+        }
+        lambda = (num * inv) % p;
+    } else {
+        long long num = (y2 - y1 + p) % p;
+        long long den = (x2 - x1 + p) % p;
+        long long inv = mod_inverse(den, p);
+        if (inv == -1) {
+            *x3 = *y3 = -1;
+            return;
+        }
+        lambda = (num * inv) % p;
+    }
+
+    *x3 = (lambda * lambda - x1 - x2 + 3 * p) % p;
+    *y3 = (lambda * (x1 - *x3 + p) - y1 + p) % p;
 }
 
 int main() {
     long long p, a;
-    scanf("%lld", &p);  // Trường modulo p
-    scanf("%lld", &a);  // Hệ số a trong phương trình elliptic
+    long long x1, y1, x2, y2, x3, y3;
 
-    long long x1, y1, x2, y2;
-    scanf("%lld %lld", &x1, &y1);  // Điểm P
-    scanf("%lld %lld", &x2, &y2);  // Điểm Q
+    scanf("%lld", &p);
+    scanf("%lld", &a);
+    scanf("%lld %lld", &x1, &y1);
+    scanf("%lld %lld", &x2, &y2);
 
-    if (x1 == x2 && y1 == (p - y2) % p) {
-        // Trường hợp P = -Q thì P + Q = O
-        printf("0 0\n");
-        return 0;
-    }
+    elliptic_add(x1, y1, x2, y2, a, p, &x3, &y3);
 
-    long long lam;
-    if (x1 == x2 && y1 == y2) {
-        // P = Q
-        long long numerator = (3 * x1 % p * x1 % p + a) % p;
-        long long denominator = modinv(2 * y1 % p, p);
-        lam = mulmod(numerator, denominator, p);
-    } else {
-        // P != Q
-        long long numerator = submod(y2, y1, p);
-        long long denominator = modinv(submod(x2, x1, p), p);
-        lam = mulmod(numerator, denominator, p);
-    }
-
-    long long x3 = submod(mulmod(lam, lam, p), addmod(x1, x2, p), p);
-    long long y3 = submod(mulmod(lam, submod(x1, x3, p), p), y1, p);
-
-    printf("%lld %lld\n", x3, y3);
+    if (x3 != -1 && y3 != -1)
+        printf("%lld %lld\n", x3, y3);
 
     return 0;
 }
